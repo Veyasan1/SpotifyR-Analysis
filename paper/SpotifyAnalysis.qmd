@@ -1,0 +1,61 @@
+---
+title: "Spotify Analysis"
+format: pdf
+editor: visual
+author: Veyasan Ragulan
+date: October 10 2024
+date-format: long
+number-sections: true
+bibliography: references.bib
+---
+
+## Introduction
+
+In this paper we explore the discography of Radiohead and The National, sourced from Spotify. We use @citeR, @spotifyr, @dplyr, @xie2023knitr
+
+## Data
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(spotifyr)
+library(tidyverse)
+library('xml2')
+library(rvest)
+```
+
+Spotify keeps records on artists' discography, which can be easily obtained through API calls. We use spotifyr to collect the discography from Radiohead and The National. The discography dataset contains data from all songs related to an artists defined in the initial call. It also contains album information, name and previews, variables such as dance-ability, and loudness used by Spotify, and many more.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+radiohead <- readRDS(here::here("data/01-raw_data/radiohead.rds"))
+radiohead <- as_tibble(radiohead)
+the_national <- readRDS(here::here("data/01-raw_data/the_national.rds"))
+the_national <- as_tibble(the_national)
+
+rbind(radiohead, the_national) |>
+  mutate(album_release_date = ymd(album_release_date)) |>
+  ggplot(aes(
+    x = album_release_date,
+    y = duration_ms,
+    group = album_release_date,
+    color = artist_name
+  )) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, width = 0.3, height = 0) +
+  theme_minimal() +
+  #legend("topright", )
+  labs(
+    x = "Album release date",
+    y = "Duration of song (ms)",
+    color = "Band"
+  )
+```
+
+As seen above, the length of songs seems to decrease for Radiohead, and increase for The National.
+
+## References
